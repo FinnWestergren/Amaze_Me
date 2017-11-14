@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:layout_gravity="center"
+    android:padding="10px" >
+
+    <EditText
+        android:id="@+id/newUsername"
+        android:layout_width="285dp"
+        android:layout_height="45dp"
+        android:ems="10"
+        android:layout_gravity="center"
+        android:hint="Username" />
+
+    <EditText
+        android:id="@+id/newPassword"
+        android:layout_width="285dp"
+        android:layout_height="45dp"
+        android:hint="Password"
+        android:layout_gravity="center"
+        android:ems="10"
+        android:inputType="textPassword"/>
+
+    <EditText
+        android:id="@+id/newPasswordConfirm"
+        android:layout_width="285dp"
+        android:layout_height="45dp"
+        android:hint="Re-enter Password"
+        android:layout_gravity="center"
+        android:ems="10"
+        android:inputType="textPassword"/>
+
+    <Button
+        android:id="@+id/newSignup"
+        android:layout_width="130dp"
+        android:layout_height="45dp"
+        android:layout_gravity="center"
+        android:text="Sign Me Up!" />
+
+</LinearLayout>
