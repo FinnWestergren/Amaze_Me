@@ -11,17 +11,24 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 public class HomeActivity extends AppCompatActivity {
+
+    Button viewProfile;
+    Button newGame;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        newGame = (Button) findViewById(R.id.newGame);
+        viewProfile = (Button) findViewById(R.id.viewProfile);
+
         // Adds toolbar to activity
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
-
+        // Sets up toolbar
         Drawable settings = ContextCompat.getDrawable(this, R.drawable.ic_settings);
         mToolbar.setNavigationIcon(settings);
         setSupportActionBar(mToolbar);
@@ -31,6 +38,22 @@ public class HomeActivity extends AppCompatActivity {
                 Log.d("HOME", "CLICKED ON SETTINGS");
                 Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        // Set onClickListener for buttons
+        newGame.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(HomeActivity.this, GoogleMapsActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        viewProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                
             }
         });
     }
