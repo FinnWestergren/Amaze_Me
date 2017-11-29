@@ -53,7 +53,6 @@ public class LogInActivity extends AppCompatActivity {
                         if (dataSnapshot.exists()) {
                             if (dataSnapshot.child("pass").getValue().equals(pass)) {
                                 // Make an intent and go to main view
-                                Log.d("LOGIN", "RIGHT USER AND PASS");
                                 Intent intent = new Intent(LogInActivity.this, HomeActivity.class);
                                 intent.putExtra("USERNAME", user);
                                 startActivity(intent);
