@@ -1,12 +1,15 @@
 package cashflow.getmoney.amazeme;
 
 import android.Manifest;
+import android.app.Activity;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
 
+import android.net.Uri;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ActivityCompat;
@@ -14,9 +17,12 @@ import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
 import android.support.v7.app.AlertDialog;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GoogleApiAvailability;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.PendingResult;
 import com.google.android.gms.common.api.ResultCallback;
@@ -48,6 +54,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
 
     private static final int FINE_LOCATION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS = 2;
+    final int PLAY_SERVICES_RESOLUTION_CODE = 1000;
 
     protected void startLocationUpdates() {
         // If the ACCESS_FINE_LOCATION permission has not been granted, request it now and return
@@ -120,23 +127,43 @@ GoogleMap.OnMarkerClickListener, LocationListener {
             if(mLastLocation != null) {
                 LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
                 // add pin at user's location
-                placeMarkerOnMap(currentLocation);
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 18));
+//                placeMarkerOnMap(currentLocation);
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
             }
         }
     }
 
-    protected void placeMarkerOnMap(LatLng location) {
-        // Create MarkerOptions object and set the user's current location as the position for the marker
-        MarkerOptions markerOptions = new MarkerOptions().position(location);
-        // Add marker to map
-        mMap.addMarker(markerOptions);
+//    protected void placeMarkerOnMap(LatLng location) {
+//        // Create MarkerOptions object and set the user's current location as the position for the marker
+//        MarkerOptions markerOptions = new MarkerOptions().position(location);
+//        // Add marker to map
+//        mMap.addMarker(markerOptions);
+//    }
+
+    public boolean checkGooglePlayServices(Context context) {
+
+        GoogleApiAvailability api = GoogleApiAvailability.getInstance();
+        int resultCode = api.isGooglePlayServicesAvailable(context);
+
+        if(resultCode != ConnectionResult.SUCCESS) {
+
+            if(api.isUserResolvableError(resultCode)) {
+                api.getErrorDialog(((Activity) context), resultCode, PLAY_SERVICES_RESOLUTION_CODE).show();
+            } else {
+                Toast.makeText(context, "This device is not supported", Toast.LENGTH_LONG);
+                ((Activity) context).finish();
+            }
+            return false;
+        }
+        return true;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_maps);
+
+        checkGooglePlayServices(this);
 
         if(mGoogleApiClient == null) {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -179,19 +206,35 @@ GoogleMap.OnMarkerClickListener, LocationListener {
                 startLocationUpdates();
             }
         }
+
+        if(requestCode == PLAY_SERVICES_RESOLUTION_CODE) {
+            int status = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
+            if(status == ConnectionResult.SERVICE_VERSION_UPDATE_REQUIRED) {
+                String GPS_LINK = "play.google.com/store/apps/details?id=com.google.android.gms&hl=en";
+                try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://" + GPS_LINK)));
+                } catch (android.content.ActivityNotFoundException exception) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://" + GPS_LINK)));
+                }
+            }
+
+        }
     }
 
     // Stop location update request
     @Override
     protected void onPause() {
         super .onPause();
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        if(mGoogleApiClient.isConnected()) {
+            LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
+        }
     }
 
     // Restart location update request
     @Override
     public void onResume() {
         super .onResume();
+
         if(mGoogleApiClient.isConnected() && !mLocationUpdateState) {
             startLocationUpdates();
         }
@@ -252,6 +295,21 @@ GoogleMap.OnMarkerClickListener, LocationListener {
             return;
         } else {
             mMap.setMyLocationEnabled(true);
+
+            // determines the availability of location data on the device
+            LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(mGoogleApiClient);
+            if(null != locationAvailability && locationAvailability.isLocationAvailable()) {
+                // gives the most recent location currently available
+                mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+                // If most recent location was successfully retrieved, move camera to user's current location
+                if(mLastLocation != null) {
+                    LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                    // add pin at user's location
+//                    placeMarkerOnMap(currentLocation);
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
+                }
+            }
         }
     }
 
@@ -267,6 +325,22 @@ GoogleMap.OnMarkerClickListener, LocationListener {
                         return;
                     }
                     mMap.setMyLocationEnabled(true);
+
+                    // determines the availability of location data on the device
+                    LocationAvailability locationAvailability = LocationServices.FusedLocationApi.getLocationAvailability(mGoogleApiClient);
+                    if(null != locationAvailability && locationAvailability.isLocationAvailable()) {
+                        // gives the most recent location currently available
+                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+
+                        // If most recent location was successfully retrieved, move camera to user's current location
+                        if(mLastLocation != null) {
+                            LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+                            // add pin at user's location
+//                            placeMarkerOnMap(currentLocation);
+                            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
+                        }
+                    }
+
                 } else {
                     // Permission denied! Disable the functionality
                     // that depends on this permission
@@ -286,8 +360,10 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     public void onLocationChanged(Location location) {
         mLastLocation = location;
         if(null != mLastLocation) {
-            mMap.clear();
-            placeMarkerOnMap(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+//            mMap.clear();
+//            placeMarkerOnMap(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+            LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
         }
 
     }
