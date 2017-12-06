@@ -1,6 +1,14 @@
 package cashflow.getmoney.amazeme;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
@@ -17,19 +25,39 @@ public class HomeActivity extends AppCompatActivity {
 
     Button viewProfile;
     Button newGame;
+    String user;
+    String pass;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
 
+        Intent intent = getIntent();
+        user = intent.getStringExtra("USERNAME");
+        pass = intent.getStringExtra("PASSWORD");
+
+        // Listens for a logout broadcast
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.package.ACTION_LOGOUT");
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("onReceive", "Logout in progress");
+
+                finish();
+            }
+        }, filter);
+
         newGame = (Button) findViewById(R.id.newGame);
         viewProfile = (Button) findViewById(R.id.viewProfile);
 
         // Adds toolbar to activity
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);
+
         // Sets up toolbar
         Drawable settings = ContextCompat.getDrawable(this, R.drawable.ic_settings);
+
         mToolbar.setNavigationIcon(settings);
         setSupportActionBar(mToolbar);
         mToolbar.setNavigationOnClickListener(new View.OnClickListener() {
@@ -37,6 +65,8 @@ public class HomeActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Log.d("HOME", "CLICKED ON SETTINGS");
                 Intent intent = new Intent(HomeActivity.this, SettingsActivity.class);
+                intent.putExtra("USERNAME", user);
+
                 startActivity(intent);
             }
         });
@@ -58,22 +88,4 @@ public class HomeActivity extends AppCompatActivity {
         });
     }
 
-    @Override
-    public boolean onPrepareOptionsMenu(final Menu menu) {
-        getMenuInflater().inflate(R.menu.home_actions, menu);
-
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.action_friends:
-                Intent intent = new Intent(this, FriendsActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 }

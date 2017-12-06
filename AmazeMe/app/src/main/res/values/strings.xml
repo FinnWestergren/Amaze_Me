@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">AmazeMe</string>
-    <string name="action_friends">Friends</string>
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->

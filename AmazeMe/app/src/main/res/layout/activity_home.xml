@@ -3,13 +3,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:background="#808080">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="#000000"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -24,13 +25,16 @@
             android:id="@+id/viewProfile"
             android:layout_width="245dp"
             android:layout_height="45dp"
-            android:text="View Profile"/>
+            android:text="View Profile"
+            android:background="#FFA000"/>
 
         <Button
+            android:layout_marginTop="20dp"
             android:id="@+id/newGame"
             android:layout_width="245dp"
             android:layout_height="45dp"
-            android:text="New Game" />
+            android:text="New Game"
+            android:background="#FFA000"/>
 
     </LinearLayout>
 

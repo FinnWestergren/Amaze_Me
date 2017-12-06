@@ -2,9 +2,11 @@ package cashflow.getmoney.amazeme;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -162,6 +164,18 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_google_maps);
+
+        // Listens for a logout broadcast
+        IntentFilter filter = new IntentFilter();
+        filter.addAction("com.package.ACTION_LOGOUT");
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d("onReceive", "Logout in progress");
+
+                finish();
+            }
+        }, filter);
 
         checkGooglePlayServices(this);
 

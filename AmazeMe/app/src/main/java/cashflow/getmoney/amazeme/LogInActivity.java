@@ -55,6 +55,7 @@ public class LogInActivity extends AppCompatActivity {
                                 // Make an intent and go to main view
                                 Intent intent = new Intent(LogInActivity.this, HomeActivity.class);
                                 intent.putExtra("USERNAME", user);
+                                intent.putExtra("PASSWORD", pass);
                                 startActivity(intent);
                             } else {
                                 builder.setMessage("Incorrect username or password. Please try again")

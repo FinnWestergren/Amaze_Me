@@ -23,11 +23,13 @@
         android:orientation="vertical" >
 
         <Button
+            android:id="@+id/logout"
             android:layout_width="245dp"
             android:layout_height="45dp"
             android:text="Log Out" />
 
         <Button
+            android:id="@+id/delete"
             android:layout_width="245dp"
             android:layout_height="45dp"
             android:layout_marginTop="20dp"
