@@ -358,7 +358,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
                 } else {
                     // Permission denied! Disable the functionality
                     // that depends on this permission
-                    Toast.makeText(this, "Permission denied", Toast.LENGTH_LONG).show();
+
                 }
                 return;
             }
