@@ -20,6 +20,8 @@ import android.os.Bundle;
 
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.ViewGroup;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -44,6 +46,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import processing.android.PFragment;
+import processing.android.CompatUtils;
+import processing.core.PApplet;
+
 public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCallback,
 GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
 GoogleMap.OnMarkerClickListener, LocationListener {
@@ -53,6 +59,8 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private boolean mLocationUpdateState;
+
+    private PApplet sketch;
 
     private static final int FINE_LOCATION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS = 2;
@@ -163,6 +171,16 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        FrameLayout frame = new FrameLayout(this);
+        frame.setId(CompatUtils.getUniqueViewId());
+        setContentView(frame, new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT));
+
+        sketch = new Sketch();
+        PFragment fragment = new PFragment(sketch);
+        fragment.setView(frame, this);
+
         setContentView(R.layout.activity_google_maps);
 
         // Listens for a logout broadcast
@@ -380,6 +398,12 @@ GoogleMap.OnMarkerClickListener, LocationListener {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
         }
 
+    }
+    @Override
+    public void onNewIntent(Intent intent) {
+        if (sketch != null) {
+            sketch.onNewIntent(intent);
+        }
     }
 
     @Override
