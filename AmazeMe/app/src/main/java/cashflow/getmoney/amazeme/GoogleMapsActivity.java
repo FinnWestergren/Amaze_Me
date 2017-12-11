@@ -46,9 +46,15 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+<<<<<<< HEAD
 import processing.android.PFragment;
 import processing.android.CompatUtils;
 import processing.core.PApplet;
+=======
+import java.sql.Time;
+import java.util.Calendar;
+import java.util.Locale;
+>>>>>>> 1ed6332cae8eefa6b4b17d7a5e64b5a398f6c2b8
 
 public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCallback,
 GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
@@ -60,7 +66,10 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     private LocationRequest mLocationRequest;
     private boolean mLocationUpdateState;
 
+<<<<<<< HEAD
     private PApplet sketch;
+=======
+>>>>>>> 1ed6332cae8eefa6b4b17d7a5e64b5a398f6c2b8
 
     private static final int FINE_LOCATION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS = 2;
@@ -85,6 +94,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
         // Specifies the fastest rate at which the app can handle updates
         mLocationRequest.setFastestInterval(5000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
 
         LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
 
@@ -211,6 +221,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
         mapFragment.getMapAsync(this);
 
         createLocationRequest();
+
     }
 
     @Override
@@ -410,4 +421,5 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     public boolean onMarkerClick(Marker marker) {
         return false;
     }
+
 }

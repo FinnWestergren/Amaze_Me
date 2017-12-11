@@ -11,7 +11,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorPrimary"
+        android:background="#333333"
         android:elevation="4dp"
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Dark" />
@@ -26,14 +26,16 @@
             android:id="@+id/logout"
             android:layout_width="245dp"
             android:layout_height="45dp"
-            android:text="Log Out" />
+            android:text="Log Out"
+            android:background="#FFA000" />
 
         <Button
             android:id="@+id/delete"
             android:layout_width="245dp"
             android:layout_height="45dp"
             android:layout_marginTop="20dp"
-            android:text="Delete Account" />
+            android:text="Delete Account"
+            android:background="#FFA000" />
 
     </LinearLayout>
 

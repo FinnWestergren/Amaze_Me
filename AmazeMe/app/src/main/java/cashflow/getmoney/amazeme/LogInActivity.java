@@ -1,7 +1,9 @@
 package cashflow.getmoney.amazeme;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,6 +27,7 @@ public class LogInActivity extends AppCompatActivity {
     Button signup;
     EditText username;
     EditText password;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +38,14 @@ public class LogInActivity extends AppCompatActivity {
         signup = (Button) findViewById(R.id.signup_button);
         username = (EditText) findViewById(R.id.username);
         password = (EditText) findViewById(R.id.password);
+
+        sharedPreferences = getSharedPreferences("LoginPrefs", Context.MODE_PRIVATE);
+
+        if(sharedPreferences.contains("USER")) {
+            Intent intent = new Intent(this, HomeActivity.class);
+            startActivity(intent);
+        }
+
 
         login.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -55,7 +66,11 @@ public class LogInActivity extends AppCompatActivity {
                                 // Make an intent and go to main view
                                 Intent intent = new Intent(LogInActivity.this, HomeActivity.class);
                                 intent.putExtra("USERNAME", user);
-                                intent.putExtra("PASSWORD", pass);
+
+                                SharedPreferences.Editor editor = sharedPreferences.edit();
+                                editor.putString("USER", user);
+                                editor.commit();
+
                                 startActivity(intent);
                             } else {
                                 builder.setMessage("Incorrect username or password. Please try again")
