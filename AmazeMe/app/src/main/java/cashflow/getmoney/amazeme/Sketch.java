@@ -61,6 +61,8 @@ public class Sketch extends PApplet {
     public void draw() {
         if(player == null) {
             textAlign(CENTER);
+            fill(0);
+            textSize(70);
             text("attempting to connect...", width/2,height/2);
             return;
         }
@@ -86,7 +88,7 @@ public class Sketch extends PApplet {
         popMatrix();
         fill(0);
         player.draw();
-        //text(player.moveListOutput(), 50, 50);
+        text(player.moveListOutput(), 50, 50);
         handleIlegalMoves();
     }
 

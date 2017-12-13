@@ -80,6 +80,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
         }
         // If there is permission, request for location updates
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
+
     }
 
     // Create instance of LocationRequest, add it to instance of LocationSettingsRequest.Builder and retrieve
@@ -146,6 +147,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
                 // add pin at user's location
 //                placeMarkerOnMap(currentLocation);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
+                ((Sketch) sketch).init(5,currentLocation.latitude,currentLocation.longitude,0.5,4);
             }
         }
     }
@@ -286,6 +288,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
 
         if(mLocationUpdateState) {
             startLocationUpdates();
+
         }
     }
 
@@ -293,6 +296,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     public void onConnectionSuspended(int i) {
 
     }
+
 
 
     /**
@@ -404,6 +408,8 @@ GoogleMap.OnMarkerClickListener, LocationListener {
 //            placeMarkerOnMap(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
             LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
+            ((Sketch)sketch).updateLocation(location.getLatitude(),location.getLongitude());
+            Toast.makeText(this,"location: " + location.toString(),Toast.LENGTH_LONG);
         }
 
     }
