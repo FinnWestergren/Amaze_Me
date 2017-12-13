@@ -106,7 +106,7 @@ public class Sketch extends PApplet {
         text("WINNER", width/2,height/2);
     }
     //returns total seconds it took for user to complete maze
-    private long returnTotalTime(){
+    private int returnTotalTime(){
         totalTime = endTime - startTime;
         int totalSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(totalTime);
         return totalSeconds;
