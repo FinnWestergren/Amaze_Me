@@ -7,23 +7,37 @@ import java.util.Stack;
 import processing.core.PApplet;
 
 public class Sketch extends PApplet {
-    public static final float MARGIN = 0, SCALE = 40;
+    public static  float SCALE;
     public static int BLOCKED_ALPHA = 100;
     public static Player player;
     public static Maze maze;
     public int xDim, yDim;
     public static float rotation = 0;
+    public static double startLat, startLong, feetPerCell;
+    //cellsPerView Determines SCALE
+    public Sketch(){
+        super();
+
+    }
+
+
+    public void settings(){
+        size(displayWidth,displayHeight);
+    }
 
 
     public void setup() {
-        fullScreen();
         background(255);
         xDim = 20;
         yDim = 20;
-        init(5);
+
     }
 
-    public void init(int difficulty) {
+    public void init(int difficulty,double startLatitude, double startLongitude, double feetPerCell, int cellsPerView) {
+        this.startLat = startLatitude;
+        this.startLong = startLongitude;
+        this.feetPerCell = feetPerCell;
+        SCALE = displayWidth/cellsPerView;
         int size = xDim * yDim;
         int minPathSize = (int)(difficulty * size / 10) ;
         IntCoord start = new IntCoord(0, 0),
@@ -36,7 +50,20 @@ public class Sketch extends PApplet {
         player = new Player(maze.getCell(start).getCenter(), maze);
     }
 
+    public void updateLocation(double lat, double lon){
+
+        float X = (float) (((lat - startLat)/feetPerCell) * SCALE);
+        float Y = (float) (((lon - startLong)/feetPerCell) * SCALE);
+        if(player != null)
+        player.updateCoords(new FloatCoord(X,Y));
+    }
+
     public void draw() {
+        if(player == null) {
+            textAlign(CENTER);
+            text("attempting to connect...", width/2,height/2);
+            return;
+        }
         fill(255,255,255);
         rect(-1, -1, width +2, height + 2);
         maze.translateTo(player.getFloatPosition());
@@ -238,7 +265,7 @@ public class Sketch extends PApplet {
         }
 
         public IntCoord getIntCoord(){
-            return new IntCoord((int)(MARGIN + x / SCALE) ,(int)(MARGIN + y / SCALE));
+            return new IntCoord((int)( x / SCALE) ,(int)( y / SCALE));
         }
 
         public FloatCoord changeX(float rate){
@@ -290,7 +317,7 @@ public class Sketch extends PApplet {
         }
 
         public FloatCoord getFloatCoord(){
-            return new FloatCoord(x * SCALE + MARGIN, y * SCALE + MARGIN);
+            return new FloatCoord(x * SCALE , y * SCALE );
         }
 
         public IntCoord copy(){
