@@ -14,6 +14,11 @@ public class Sketch extends PApplet {
     public int xDim, yDim;
     public static float rotation = 0;
     public static double startLat, startLong, feetPerCell;
+
+    //score calculator
+    public static long startTime;
+    public static long endTime;
+    public static long totalTime;
     //cellsPerView Determines SCALE
     public Sketch(){
         super();
@@ -48,6 +53,7 @@ public class Sketch extends PApplet {
         maze.generate(start, finish, minPathSize);
 
         player = new Player(maze.getCell(start).getCenter(), maze);
+        startTime = System.nanoTime();
     }
 
     public void updateLocation(double lat, double lon){
@@ -93,9 +99,14 @@ public class Sketch extends PApplet {
     }
 
     private void gameOverScreen(){
+        endTime = System.nanoTime();
         textAlign(CENTER);
         fill(0);
         text("WINNER", width/2,height/2);
+    }
+    private long returnTotalTime(){
+        totalTime = endTime - startTime;
+        return totalTime;
     }
 
     private void handleIlegalMoves() {
