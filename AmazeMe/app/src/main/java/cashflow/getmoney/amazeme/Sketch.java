@@ -3,6 +3,7 @@ package cashflow.getmoney.amazeme;
 
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import processing.core.PApplet;
 
@@ -104,9 +105,11 @@ public class Sketch extends PApplet {
         fill(0);
         text("WINNER", width/2,height/2);
     }
+    //returns total seconds it took for user to complete maze
     private long returnTotalTime(){
         totalTime = endTime - startTime;
-        return totalTime;
+        long totalSeconds = TimeUnit.NANOSECONDS.toSeconds(totalTime);
+        return totalSeconds;
     }
 
     private void handleIlegalMoves() {
