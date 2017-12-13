@@ -88,9 +88,9 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         // Specifies the rate at which app will like to receive updates
-        mLocationRequest.setInterval(10000);
+        mLocationRequest.setInterval(100);
         // Specifies the fastest rate at which the app can handle updates
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setFastestInterval(50);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
@@ -147,7 +147,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
                 // add pin at user's location
 //                placeMarkerOnMap(currentLocation);
                 mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
-                ((Sketch) sketch).init(5,currentLocation.latitude,currentLocation.longitude,0.5,4);
+
             }
         }
     }
@@ -400,15 +400,21 @@ GoogleMap.OnMarkerClickListener, LocationListener {
 
     }
 
+    int count = 0;
     @Override
     public void onLocationChanged(Location location) {
         mLastLocation = location;
+
         if(null != mLastLocation) {
 //            mMap.clear();
 //            placeMarkerOnMap(new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
             LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
+
+            if(!((Sketch)sketch).initialized && count >= 8) ((Sketch)sketch).init(3,mLastLocation.getLatitude(),mLastLocation.getLongitude(),(0.00035),4);
+
             ((Sketch)sketch).updateLocation(location.getLatitude(),location.getLongitude());
+            count++;
             Toast.makeText(this,"location: " + location.toString(),Toast.LENGTH_LONG);
         }
 
