@@ -1,73 +1,85 @@
 package cashflow.getmoney.amazeme;
 
 
+import android.widget.Toast;
+
 import java.util.ArrayList;
 import java.util.Stack;
 
 import processing.core.PApplet;
 
 public class Sketch extends PApplet {
-    public static  float SCALE;
+    public static float SCALE;
     public static int BLOCKED_ALPHA = 100;
     public static Player player;
     public static Maze maze;
     public int xDim, yDim;
     public static float rotation = 0;
-    public static double startLat, startLong, feetPerCell;
+    public int updateCount = 0;
+    public boolean initialized = false;
+    double currentLat, currentLong, previousLat, previousLong;
+    public static double startLat, startLong, degreesPerCell;
+
     //cellsPerView Determines SCALE
-    public Sketch(){
+    public Sketch() {
         super();
 
     }
 
 
-    public void settings(){
-        size(displayWidth,displayHeight);
+    public void settings() {
+        size(displayWidth, displayHeight);
     }
 
 
     public void setup() {
         background(255);
-        xDim = 20;
-        yDim = 20;
+        xDim = 5;
+        yDim = 5;
 
     }
 
-    public void init(int difficulty,double startLatitude, double startLongitude, double feetPerCell, int cellsPerView) {
+    public void init(int difficulty, double startLatitude, double startLongitude, double degreesPerCell, int cellsPerView) {
         this.startLat = startLatitude;
         this.startLong = startLongitude;
-        this.feetPerCell = feetPerCell;
-        SCALE = displayWidth/cellsPerView;
+        this.degreesPerCell = degreesPerCell;
+        SCALE = displayWidth / cellsPerView;
         int size = xDim * yDim;
-        int minPathSize = (int)(difficulty * size / 10) ;
+        int minPathSize = (int) (difficulty * size / 10);
         IntCoord start = new IntCoord(0, 0),
-                finish = new IntCoord(xDim-1, yDim-1);
+                finish = new IntCoord(xDim - 1, yDim - 1);
         maze = new Maze(xDim, yDim);
         maze.init(true);
         //maze.blockCells(new IntCoord (10,10), new IntCoord(12,14));
         maze.generate(start, finish, minPathSize);
-
         player = new Player(maze.getCell(start).getCenter(), maze);
+        initialized = true;
     }
 
-    public void updateLocation(double lat, double lon){
+    public void updateLocation(double lat, double lon) {
 
-        float X = (float) (((lat - startLat)/feetPerCell) * SCALE);
-        float Y = (float) (((lon - startLong)/feetPerCell) * SCALE);
-        if(player != null)
-        player.updateCoords(new FloatCoord(X,Y));
+        float X = (float) (((lat - startLat) / degreesPerCell) * SCALE);
+        float Y = (float) (((lon - startLong) / degreesPerCell) * SCALE);
+        updateCount++;
+        previousLat = currentLat;
+        previousLong = currentLong;
+        currentLat = lat;
+        currentLong = lon;
+        if (player != null) {
+            player.updateCoords(maze.getStart().getCenter().add(X, Y));
+        }
     }
 
     public void draw() {
-        if(player == null) {
+        if (!initialized) {
             textAlign(CENTER);
             fill(0);
             textSize(70);
-            text("attempting to connect...", width/2,height/2);
+            text("attempting to connect...", width / 2, height / 2);
             return;
         }
-        fill(255,255,255);
-        rect(-1, -1, width +2, height + 2);
+        fill(255, 255, 255);
+        rect(-1, -1, width + 2, height + 2);
         maze.translateTo(player.getFloatPosition());
         if (!maze.gameOver()) {
             run();
@@ -77,39 +89,40 @@ public class Sketch extends PApplet {
     }
 
 
-
-    private void run(){
+    private void run() {
 
         pushMatrix();
-        translate(width/2, height/2);
+        translate(width / 2, height / 2);
         rotate(rotation);
 
         maze.draw();
         popMatrix();
         fill(0);
         player.draw();
-        text(player.moveListOutput(), 50, 50);
+        textSize(40);
+        text(player.moveListOutput(), width / 2, 300);
+        text("updateCount: " + updateCount + "\nLAT: " + (currentLat - startLat) + "\nLONG: " + (currentLong - startLong), width / 2, 50);
         handleIlegalMoves();
     }
 
-    private void gameOverScreen(){
+    private void gameOverScreen() {
         textAlign(CENTER);
         fill(0);
-        text("WINNER", width/2,height/2);
+        text("WINNER", width / 2, height / 2);
     }
 
     private void handleIlegalMoves() {
         Cell mark;
-        if (player.lastLegal()!=null)
+        if (player.lastLegal() != null)
             mark = maze.getCell(player.lastLegal().getB());
-        else  mark = null;
+        else mark = null;
 
         maze.markLastLegal(mark);
     }
 
     public void keyPressed() {
         if (key == CODED) {
-            switch(keyCode) {
+            switch (keyCode) {
                 case UP:
                     player.move(Direction.UP);
                     break;
@@ -126,10 +139,10 @@ public class Sketch extends PApplet {
         }
 
         if (key == 'r') {
-            rotation += PI/16;
+            rotation += PI / 16;
         }
         if (key == 'e') {
-            rotation -= PI/16;
+            rotation -= PI / 16;
         }
     }
 
@@ -139,6 +152,7 @@ public class Sketch extends PApplet {
         private FloatCoord screenLocation;
         private Wall[] walls;
         private boolean finishCell = false, startCell = false;
+
         public Cell(int x, int y) {
             gridLocation = new IntCoord(x, y);
             screenLocation = gridLocation.getFloatCoord();
@@ -146,18 +160,18 @@ public class Sketch extends PApplet {
         }
 
         public void setWall(Direction d, Wall w) {
-            switch(d) {
+            switch (d) {
                 case UP:
-                    walls[0]  = w;
+                    walls[0] = w;
                     break;
                 case DOWN:
-                    walls[1]  = w;
+                    walls[1] = w;
                     break;
                 case LEFT:
-                    walls[2]  = w;
+                    walls[2] = w;
                     break;
                 case RIGHT:
-                    walls[3]  = w;
+                    walls[3] = w;
                     break;
                 default:
                     break;
@@ -173,7 +187,7 @@ public class Sketch extends PApplet {
         }
 
         public Wall getWall(Direction d) {
-            switch(d) {
+            switch (d) {
                 case UP:
                     return walls[0];
                 case DOWN:
@@ -193,12 +207,13 @@ public class Sketch extends PApplet {
         }
 
         public FloatCoord getCenter() {
-            return new FloatCoord(screenLocation.getX() + SCALE/2, screenLocation.getY() + SCALE/2);
+            return new FloatCoord(screenLocation.getX() + SCALE / 2, screenLocation.getY() + SCALE / 2);
         }
 
         public void setBlocked() {
             blocked = true;
         }
+
         public void setExplored() {
             explored = true;
         }
@@ -217,7 +232,7 @@ public class Sketch extends PApplet {
 
         public void highlight() {
             float x = screenLocation.getX(), y = screenLocation.getY();
-            fill(255,50,100);
+            fill(255, 50, 100);
             noStroke();
             rect(x, y, SCALE, SCALE);
         }
@@ -252,86 +267,93 @@ public class Sketch extends PApplet {
         UP, DOWN, LEFT, RIGHT
     }
 
-    public class FloatCoord{
-        private float x,y;
-        public FloatCoord(float x, float y){
+    public class FloatCoord {
+        private float x, y;
+
+        public FloatCoord(float x, float y) {
             this.x = x;
             this.y = y;
         }
-        public float getX(){
+
+        public float getX() {
             return x;
         }
 
-        public float getY(){
+        public float getY() {
             return y;
         }
 
-        public IntCoord getIntCoord(){
-            return new IntCoord((int)( x / SCALE) ,(int)( y / SCALE));
+        public FloatCoord add(float xPos, float yPos) {
+            return new FloatCoord(this.x + xPos, this.y + yPos);
         }
 
-        public FloatCoord changeX(float rate){
-            x+=rate;
+        public IntCoord getIntCoord() {
+            return new IntCoord((int) (x / SCALE), (int) (y / SCALE));
+        }
+
+        public FloatCoord changeX(float rate) {
+            x += rate;
             return copy();
         }
 
-        public FloatCoord copy(){
-            return new FloatCoord(x,y);
+        public FloatCoord copy() {
+            return new FloatCoord(x, y);
         }
 
 
-        public FloatCoord changeY(float rate){
-            y+=rate;
+        public FloatCoord changeY(float rate) {
+            y += rate;
             return copy();
         }
 
-        public FloatCoord getInversion(){
-            return new FloatCoord(-x + SCALE , -y + SCALE);
+        public FloatCoord getInversion() {
+            return new FloatCoord(-x + SCALE, -y + SCALE);
         }
 
-        public FloatCoord getDelta(FloatCoord other){
+        public FloatCoord getDelta(FloatCoord other) {
             return new FloatCoord(x - other.getX(), y - other.getY());
         }
 
-        public float magnitude(){
+        public float magnitude() {
             return sqrt((x * x) + (y * y));
         }
 
-        public FloatCoord relocate(float translation){
-            return new FloatCoord( translation* x / magnitude(), translation* y/magnitude());
+        public FloatCoord relocate(float translation) {
+            return new FloatCoord(translation * x / magnitude(), translation * y / magnitude());
         }
 
     }
 
-    public class IntCoord{
-        private int x,y;
-        public IntCoord(int x, int y){
+    public class IntCoord {
+        private int x, y;
+
+        public IntCoord(int x, int y) {
             this.x = x;
             this.y = y;
         }
 
-        public int getX(){
+        public int getX() {
             return x;
         }
 
-        public int getY(){
+        public int getY() {
             return y;
         }
 
-        public FloatCoord getFloatCoord(){
-            return new FloatCoord(x * SCALE , y * SCALE );
+        public FloatCoord getFloatCoord() {
+            return new FloatCoord(x * SCALE, y * SCALE);
         }
 
-        public IntCoord copy(){
-            return new IntCoord(x,y);
+        public IntCoord copy() {
+            return new IntCoord(x, y);
         }
 
 
-        public String coordString(){
+        public String coordString() {
             return x + ", " + y;
         }
 
-        public boolean equals(IntCoord other){
+        public boolean equals(IntCoord other) {
             return (x == other.getX() && y == other.getY());
         }
     }
@@ -343,6 +365,8 @@ public class Sketch extends PApplet {
         private FloatCoord translation;
         private Cell finish;
         private Cell lastLegal;
+        private Cell start;
+
         public Maze(int widthDim, int heightDim) {
             grid = new Cell[widthDim][heightDim];
             this.widthDim = widthDim;
@@ -352,8 +376,7 @@ public class Sketch extends PApplet {
         private void init(boolean firstInit) {
 
             for (int j = 0; j < heightDim; j++)
-                for (int i = 0; i < widthDim; i++)
-                {
+                for (int i = 0; i < widthDim; i++) {
 
                     if (firstInit) grid[i][j] = new Cell(i, j);
                     grid[i][j].setUnexplored();
@@ -362,8 +385,8 @@ public class Sketch extends PApplet {
                     grid[i][j].setWall(Direction.UP, h);
                     grid[i][j].setWall(Direction.LEFT, v);
 
-                    if (i!=0) grid[i-1][j].setWall(Direction.RIGHT, v);
-                    if (j!=0) grid[i][j-1].setWall(Direction.DOWN, h);
+                    if (i != 0) grid[i - 1][j].setWall(Direction.RIGHT, v);
+                    if (j != 0) grid[i][j - 1].setWall(Direction.DOWN, h);
 
 
                     if (i == widthDim - 1) {
@@ -379,18 +402,24 @@ public class Sketch extends PApplet {
         }
 
 
+        public Cell getStart() {
+
+            return start;
+        }
+
         public void generate(IntCoord start, IntCoord finish, int minLength) {
 
             int pathLength = 0;
             int count = 0;
             Stack<Cell> stack = new Stack<Cell>();
-            Cell current  = getCell(start);
+            Cell current = getCell(start);
             current.setAsStart();
             Cell goal = getCell(finish);
             this.finish = goal;
+            this.start = getCell(start);
             //mark current as start?
             goal.setAsFinish();
-            stack.push(current) ;
+            stack.push(current);
             while (!stack.isEmpty()) {
                 Cell rando = getRandomAdjacent(current);
                 if (rando == goal) {
@@ -406,7 +435,7 @@ public class Sketch extends PApplet {
                     current = rando;
                 } else {
                     current = stack.pop();
-                    count --;
+                    count--;
                 }
             }
             int size = widthDim * heightDim;
@@ -416,7 +445,6 @@ public class Sketch extends PApplet {
                 generate(start, finish, minLength);
             }
         }
-
 
 
         public Cell getCell(IntCoord i) {
@@ -444,16 +472,15 @@ public class Sketch extends PApplet {
                 }
                 int count = 0;
                 for (Cell cell : adj) {
-                    if (cell  != null)
-                        count ++;
+                    if (cell != null)
+                        count++;
                 }
                 cont = count != 0;
             }
             return null;
         }
 
-        private int horizBiasRandom()
-        {
+        private int horizBiasRandom() {
             double rando = Math.random();
             if (rando < 0.1) return 0;
             if (rando < 0.2) return 1;
@@ -466,18 +493,18 @@ public class Sketch extends PApplet {
             int y1 = c.getPosition().getY();
             int x2 = x1, y2 = y1;
 
-            switch(d) {
+            switch (d) {
                 case UP:
-                    y2 --;
+                    y2--;
                     break;
                 case DOWN:
-                    y2 ++;
+                    y2++;
                     break;
                 case LEFT:
-                    x2 --;
+                    x2--;
                     break;
                 case RIGHT:
-                    x2 ++;
+                    x2++;
                     break;
             }
 
@@ -495,7 +522,7 @@ public class Sketch extends PApplet {
             stroke(255, 0, 0);
 
 
-            Direction d =  A_TO_B(a, b);
+            Direction d = A_TO_B(a, b);
             a.getWall(d).remove();
         }
 
@@ -511,23 +538,22 @@ public class Sketch extends PApplet {
 
         public void draw() {
             pushMatrix();
-            translate(translation.getInversion().getX() - SCALE, translation.getInversion().getY()-SCALE);
+            translate(translation.getInversion().getX() - SCALE, translation.getInversion().getY() - SCALE);
             if (lastLegal != null) lastLegal.highlight();
             for (int i = 0; i < widthDim; i++)
                 for (Cell c : grid[i])
                     c.draw();
 
 
-
             popMatrix();
 
-            ArrowBoy guide =  new ArrowBoy(translation, finish.getCenter(), SCALE/1.7f, SCALE/3);
+            ArrowBoy guide = new ArrowBoy(translation, finish.getCenter(), SCALE / 1.7f, SCALE / 3);
             stroke(255, 150, 70);
             guide.draw();
 
-            if(lastLegal != null){
-                ArrowBoy markGuide =  new ArrowBoy(translation, lastLegal.getCenter(), SCALE/1.7f, SCALE/3);
-                stroke(255, 0 ,0 );
+            if (lastLegal != null) {
+                ArrowBoy markGuide = new ArrowBoy(translation, lastLegal.getCenter(), SCALE / 1.7f, SCALE / 3);
+                stroke(255, 0, 0);
                 markGuide.draw();
             }
         }
@@ -543,21 +569,22 @@ public class Sketch extends PApplet {
         public void blockCells(IntCoord topLeft, IntCoord botRight) {
             int x1 = topLeft.getX(), y1 = topLeft.getY(), x2 = botRight.getX(), y2 = botRight.getY();
 
-            for (int y = y1; y <= y2; y ++)
-                for (int x = x1; x <=x2; x ++) {
+            for (int y = y1; y <= y2; y++)
+                for (int x = x1; x <= x2; x++) {
                     grid[x][y].setBlocked();
                 }
         }
 
         public boolean gameOver() {
-            return  (finish.getCenter().getDelta(translation).magnitude() < SCALE/2 && lastLegal == null);
+            return (finish.getCenter().getDelta(translation).magnitude() < SCALE / 2 && lastLegal == null);
         }
     }
 
     public class ArrowBoy {
 
         private FloatCoord tail, tip;
-        public ArrowBoy(FloatCoord from, FloatCoord to, float size, float offset ) {
+
+        public ArrowBoy(FloatCoord from, FloatCoord to, float size, float offset) {
 
             FloatCoord delta = to.getDelta(from);
 
@@ -566,6 +593,8 @@ public class Sketch extends PApplet {
         }
 
         public void draw() {
+
+            strokeWeight(2);
 
             line(tail.getX(), tail.getY(), tip.getX(), tip.getY());
             stroke(0);
@@ -579,8 +608,9 @@ public class Sketch extends PApplet {
         private boolean cheating = false;
         public static final float moveRate = 15;
         ArrayList<Move> moveList;
+
         public Player(FloatCoord floatPosition, Maze maze) {
-            this.maze =maze;
+            this.maze = maze;
             this.floatPosition = floatPosition;
             this.intPosition = floatPosition.getIntCoord();
             moveList = new ArrayList<Move>();
@@ -592,14 +622,13 @@ public class Sketch extends PApplet {
             if (!B.equals(intPosition)) {
                 Move m = new Move(intPosition, B);
                 if (!cheating) moveList.add(m);
-                if(!m.legal(maze)) cheating = true;
+                if (!m.legal(maze)) cheating = true;
 
                 if (lastLegal() != null)
                     if (B.equals(lastLegal().getB())) {
                         cheating = false;
-                        moveList.remove(moveList.size()-1);
+                        moveList.remove(moveList.size() - 1);
                     }
-
                 intPosition = B;
             }
         }
@@ -607,15 +636,15 @@ public class Sketch extends PApplet {
         public String moveListOutput() {
             String out = "";
             for (Move m : moveList) {
-                out+= m.getA().coordString()+ " -> " +m.getB().coordString() + " " + m.legal(maze) +" \n";
+                out += m.getA().coordString() + " -> " + m.getB().coordString() + " " + m.legal(maze) + " \n";
             }
             return out;
         }
 
         public Move lastLegal() {
-            for (int i = 0; i < moveList.size(); i ++) {
+            for (int i = 0; i < moveList.size(); i++) {
                 if (!moveList.get(i).legal(maze) && i != 0) {
-                    return moveList.get(i-1);
+                    return moveList.get(i - 1);
                 }
             }
             return null;
@@ -630,7 +659,7 @@ public class Sketch extends PApplet {
         }
 
         public void move(Direction d) {
-            switch(d) {
+            switch (d) {
                 case UP:
                     updateCoords(floatPosition.changeY(-moveRate));
                     break;
@@ -647,7 +676,7 @@ public class Sketch extends PApplet {
         }
 
         public void draw() {
-            ellipse(width/2, height/2, 10, 10);
+            ellipse(width / 2, height / 2, 10, 10);
         }
     }
 
@@ -671,58 +700,64 @@ public class Sketch extends PApplet {
         public IntCoord getA() {
             return A;
         }
+
         public IntCoord getB() {
             return B;
         }
     }
 
-    public class Wall{
-        private IntCoord pointA,pointB;
+    public class Wall {
+        private IntCoord pointA, pointB;
         public Orientation orientation;
-        public Wall(int x, int y, Orientation o){
-            pointA = new IntCoord(x,y);
-            switch(o){
+
+        public Wall(int x, int y, Orientation o) {
+            pointA = new IntCoord(x, y);
+            switch (o) {
                 case HORIZ:
-                    pointB = new IntCoord(x+1,y);
+                    pointB = new IntCoord(x + 1, y);
                     break;
                 case VERT:
-                    pointB = new IntCoord(x,y + 1);
+                    pointB = new IntCoord(x, y + 1);
                     break;
                 default:
-                    pointB =  pointA.copy();
+                    pointB = pointA.copy();
                     break;
             }
             orientation = o;
         }
 
-        public void remove(){
+        public void remove() {
             orientation = Orientation.OPEN;
         }
 
-        public boolean isOpen(){
+        public boolean isOpen() {
             return orientation == Orientation.OPEN;
         }
 
 
-        public IntCoord getPointA(){return pointA;}
-        public IntCoord getPointB(){return pointB;}
+        public IntCoord getPointA() {
+            return pointA;
+        }
 
-        public void draw(){
-            if(orientation == Orientation.OPEN) return;
-            float x1 = pointA.getFloatCoord().getX() , x2 = pointB.getFloatCoord().getX(),
-                    y1 = pointA.getFloatCoord().getY() , y2 = pointB.getFloatCoord().getY();
+        public IntCoord getPointB() {
+            return pointB;
+        }
+
+        public void draw() {
+            if (orientation == Orientation.OPEN) return;
+            float x1 = pointA.getFloatCoord().getX(), x2 = pointB.getFloatCoord().getX(),
+                    y1 = pointA.getFloatCoord().getY(), y2 = pointB.getFloatCoord().getY();
 
             stroke(0);
             strokeWeight(2);
-            line(x1,y1,x2,y2);
+            line(x1, y1, x2, y2);
         }
 
     }
 
-    public enum Orientation{
-        OPEN,HORIZ,VERT
+    public enum Orientation {
+        OPEN, HORIZ, VERT
     }
-
 
 
 }
