@@ -16,20 +16,17 @@ public class Sketch extends PApplet {
     public static Maze maze;
     public int xDim, yDim;
     public static float rotation = 0;
-<<<<<<< HEAD
+
     public int updateCount = 0;
     public boolean initialized = false;
     double currentLat, currentLong, previousLat, previousLong;
     public static double startLat, startLong, degreesPerCell;
 
-=======
-    public static double startLat, startLong, feetPerCell;
 
     //score calculator
     public static long startTime;
     public static long endTime;
     public static long totalTime;
->>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
     //cellsPerView Determines SCALE
     public Sketch() {
         super();
@@ -63,11 +60,10 @@ public class Sketch extends PApplet {
         //maze.blockCells(new IntCoord (10,10), new IntCoord(12,14));
         maze.generate(start, finish, minPathSize);
         player = new Player(maze.getCell(start).getCenter(), maze);
-<<<<<<< HEAD
+
         initialized = true;
-=======
+
         startTime = System.nanoTime();
->>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
     }
 
     public void updateLocation(double lat, double lon) {
@@ -119,16 +115,14 @@ public class Sketch extends PApplet {
         handleIlegalMoves();
     }
 
-<<<<<<< HEAD
+
     private void gameOverScreen() {
-=======
-    private void gameOverScreen(){
         endTime = System.nanoTime();
->>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
         textAlign(CENTER);
         fill(0);
         text("WINNER", width / 2, height / 2);
     }
+
     //returns total seconds it took for user to complete maze
     private int returnTotalTime(){
         totalTime = endTime - startTime;
@@ -426,6 +420,62 @@ public class Sketch extends PApplet {
                 }
         }
 
+        public void mazeToString() {
+            Cell[][] mazeCells = maze.grid;
+            int widthDim = maze.widthDim, heightDim = maze.heightDim;
+            String mazeStr = "";
+
+            for(int j = 0; j < heightDim; j++) {
+                for(int i = 0; i < widthDim; i++) {
+                    boolean isUp = false, isDown = false, isLeft = false, isRight = false;
+
+                    Wall up =  mazeCells[i][j].getWall(Direction.UP);
+                    if(up != null) { isUp = true; }
+                    Wall down = mazeCells[i][j].getWall(Direction.DOWN);
+                    if(down != null) { isDown = true; }
+                    Wall left = mazeCells[i][j].getWall(Direction.LEFT);
+                    if(left != null) { isLeft = true; }
+                    Wall right = mazeCells[i][j].getWall(Direction.RIGHT);
+                    if(right != null) { isRight = true; }
+
+                    if(!isUp && !isDown && !isLeft && !isRight) {
+                        mazeStr += "0";
+                    } else if (!isUp && !isDown && isLeft && !isRight) {
+                        mazeStr += "1";
+                    } else if (!isUp && isDown && !isLeft && !isRight) {
+                        mazeStr += "2";
+                    } else if (!isUp && !isDown && !isLeft && isRight) {
+                        mazeStr += "3";
+                    } else if (isUp && !isDown && !isLeft && !isRight) {
+                        mazeStr += "4";
+                    } else if (!isUp && isDown && isLeft && !isRight) {
+                        mazeStr += "5";
+                    } else if (!isUp && isDown && !isLeft && isRight) {
+                        mazeStr += "6";
+                    } else if (isUp && !isDown && !isLeft && isRight) {
+                        mazeStr += "7";
+                    } else if (isUp && !isDown && isLeft && !isRight) {
+                        mazeStr += "8";
+                    } else if (!isUp && isDown && isLeft && isRight) {
+                        mazeStr += "9";
+                    } else if (isUp && isDown && !isLeft && isRight) {
+                        mazeStr += "A";
+                    } else if (isUp && !isDown && isLeft && isRight) {
+                        mazeStr += "B";
+                    } else if (isUp && isDown && isLeft && !isRight) {
+                        mazeStr += "C";
+                    } else if (!isUp && !isDown && isLeft && isRight) {
+                        mazeStr += "D";
+                    } else if (isUp && isDown && !isLeft && !isRight) {
+                        mazeStr += "E";
+                    } else if (isUp && isDown && isLeft && isRight) {
+                        mazeStr += "F";
+                    }
+                }
+            }
+
+
+        }
 
         public Cell getStart() {
 

@@ -414,7 +414,10 @@ GoogleMap.OnMarkerClickListener, LocationListener {
             if(!((Sketch)sketch).initialized && count >= 8) ((Sketch)sketch).init(3,mLastLocation.getLatitude(),mLastLocation.getLongitude(),(0.00035),4);
 
             ((Sketch)sketch).updateLocation(location.getLatitude(),location.getLongitude());
+
             count++;
+
+
             Toast.makeText(this,"location: " + location.toString(),Toast.LENGTH_LONG);
         }
 
