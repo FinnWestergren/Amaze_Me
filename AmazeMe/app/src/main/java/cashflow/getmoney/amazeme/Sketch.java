@@ -5,6 +5,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Stack;
+import java.util.concurrent.TimeUnit;
 
 import processing.core.PApplet;
 
@@ -15,11 +16,20 @@ public class Sketch extends PApplet {
     public static Maze maze;
     public int xDim, yDim;
     public static float rotation = 0;
+<<<<<<< HEAD
     public int updateCount = 0;
     public boolean initialized = false;
     double currentLat, currentLong, previousLat, previousLong;
     public static double startLat, startLong, degreesPerCell;
 
+=======
+    public static double startLat, startLong, feetPerCell;
+
+    //score calculator
+    public static long startTime;
+    public static long endTime;
+    public static long totalTime;
+>>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
     //cellsPerView Determines SCALE
     public Sketch() {
         super();
@@ -53,7 +63,11 @@ public class Sketch extends PApplet {
         //maze.blockCells(new IntCoord (10,10), new IntCoord(12,14));
         maze.generate(start, finish, minPathSize);
         player = new Player(maze.getCell(start).getCenter(), maze);
+<<<<<<< HEAD
         initialized = true;
+=======
+        startTime = System.nanoTime();
+>>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
     }
 
     public void updateLocation(double lat, double lon) {
@@ -105,10 +119,21 @@ public class Sketch extends PApplet {
         handleIlegalMoves();
     }
 
+<<<<<<< HEAD
     private void gameOverScreen() {
+=======
+    private void gameOverScreen(){
+        endTime = System.nanoTime();
+>>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
         textAlign(CENTER);
         fill(0);
         text("WINNER", width / 2, height / 2);
+    }
+    //returns total seconds it took for user to complete maze
+    private long returnTotalTime(){
+        totalTime = endTime - startTime;
+        int totalSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(totalTime);
+        return totalSeconds;
     }
 
     private void handleIlegalMoves() {
