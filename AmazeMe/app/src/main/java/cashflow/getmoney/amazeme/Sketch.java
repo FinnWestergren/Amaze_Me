@@ -108,7 +108,7 @@ public class Sketch extends PApplet {
     //returns total seconds it took for user to complete maze
     private long returnTotalTime(){
         totalTime = endTime - startTime;
-        long totalSeconds = TimeUnit.NANOSECONDS.toSeconds(totalTime);
+        int totalSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(totalTime);
         return totalSeconds;
     }
 
