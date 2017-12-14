@@ -412,11 +412,11 @@ GoogleMap.OnMarkerClickListener, LocationListener {
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
 
             if(!((Sketch)sketch).initialized && count >= 8) ((Sketch)sketch).init(3,mLastLocation.getLatitude(),mLastLocation.getLongitude(),(0.00035),4);
-
-            ((Sketch)sketch).updateLocation(location.getLatitude(),location.getLongitude());
-            Toast.makeText(this, "LOCATION ACCURACY" +mLastLocation.getAccuracy(), Toast.LENGTH_SHORT).show();
-            Log.d("LOCATION ACCURACY", "" + mLastLocation.getAccuracy());
-
+            if(mLastLocation.getAccuracy() < 20) {
+                ((Sketch) sketch).updateLocation(location.getLatitude(), location.getLongitude());
+                Toast.makeText(this, "LOCATION SPEED" + mLastLocation.getSpeed(), Toast.LENGTH_SHORT).show();
+                Log.d("LOCATION SPEED", "" + mLastLocation.getSpeed());
+            }
             count++;
 
 
