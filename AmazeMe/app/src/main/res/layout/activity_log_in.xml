@@ -34,13 +34,15 @@
             android:id="@+id/signup_button"
             android:layout_width="115dp"
             android:layout_height="45dp"
-            android:text="Sign Up" />
+            android:text="Sign Up"
+            android:background="#FFA000" />
 
         <Button
             android:id="@+id/login_button"
             android:layout_width="115dp"
             android:layout_height="45dp"
-            android:text="Log In" />
+            android:text="Log In"
+            android:background="#FFA000" />
 
 
     </LinearLayout>

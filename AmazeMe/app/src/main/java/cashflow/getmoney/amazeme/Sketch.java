@@ -1,8 +1,6 @@
 package cashflow.getmoney.amazeme;
 
 
-import android.widget.Toast;
-
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
@@ -15,26 +13,25 @@ public class Sketch extends PApplet {
     public static Player player;
     public static Maze maze;
     public int xDim, yDim;
-    public static float rotation = 0;
-<<<<<<< HEAD
+
+    public static float initialRotation = -3 * PI / 4, initialBearing, rotation;
     public int updateCount = 0;
     public boolean initialized = false;
     double currentLat, currentLong, previousLat, previousLong;
     public static double startLat, startLong, degreesPerCell;
 
-=======
-    public static double startLat, startLong, feetPerCell;
-
     //score calculator
     public static long startTime;
     public static long endTime;
     public static long totalTime;
->>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
+
     //cellsPerView Determines SCALE
     public Sketch() {
         super();
 
     }
+
+//    FloatySquare[] fs;
 
 
     public void settings() {
@@ -44,33 +41,37 @@ public class Sketch extends PApplet {
 
     public void setup() {
         background(255);
-        xDim = 5;
-        yDim = 5;
+        xDim = 1;
+        yDim = 1;
+//        fs = new FloatySquare[30];
+//        for (FloatySquare s : fs) {
+//            s = new FloatySquare();
+//        }
 
     }
 
-    public void init(int difficulty, double startLatitude, double startLongitude, double degreesPerCell, int cellsPerView) {
+    public void init(int difficulty, double startLatitude, double startLongitude, float initialBearing, double degreesPerCell, int cellsPerView) {
         this.startLat = startLatitude;
         this.startLong = startLongitude;
         this.degreesPerCell = degreesPerCell;
+        this.initialBearing = initialBearing;
         SCALE = displayWidth / cellsPerView;
         int size = xDim * yDim;
         int minPathSize = (int) (difficulty * size / 10);
-        IntCoord start = new IntCoord(0, 0),
+        IntCoord start = new IntCoord(xDim / 2, yDim / 2),
                 finish = new IntCoord(xDim - 1, yDim - 1);
         maze = new Maze(xDim, yDim);
         maze.init(true);
         //maze.blockCells(new IntCoord (10,10), new IntCoord(12,14));
         maze.generate(start, finish, minPathSize);
         player = new Player(maze.getCell(start).getCenter(), maze);
-<<<<<<< HEAD
+
         initialized = true;
-=======
+
         startTime = System.nanoTime();
->>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
     }
 
-    public void updateLocation(double lat, double lon) {
+    public void updateLocation(float lat, float lon) {
 
         float X = (float) (((lat - startLat) / degreesPerCell) * SCALE);
         float Y = (float) (((lon - startLong) / degreesPerCell) * SCALE);
@@ -80,26 +81,40 @@ public class Sketch extends PApplet {
         currentLat = lat;
         currentLong = lon;
         if (player != null) {
-            player.updateCoords(maze.getStart().getCenter().add(X, Y));
+            float X2 = cos(initialBearing) * X - sin(initialBearing) * Y;
+            float Y2 = sin(initialBearing) * X + cos(initialBearing) * Y;
+            player.updateCoords(maze.getStart().getCenter().add(X2, Y2));
         }
     }
 
+    public void updateRotation(float bearing) {
+
+        rotation = initialRotation - (bearing - initialBearing);
+    }
+
     public void draw() {
-        if (!initialized) {
-            textAlign(CENTER);
-            fill(0);
-            textSize(70);
-            text("attempting to connect...", width / 2, height / 2);
-            return;
-        }
         fill(255, 255, 255);
         rect(-1, -1, width + 2, height + 2);
+        if (!initialized) {
+            loading();
+            return;
+        }
         maze.translateTo(player.getFloatPosition());
         if (!maze.gameOver()) {
             run();
-        } else {
-            gameOverScreen();
+            return;
         }
+        gameOverScreen();
+
+    }
+
+    private void loading() {
+        textAlign(CENTER);
+        fill(0);
+        textSize(70);
+        text("Connecting...\nFace an open area and stand still", width / 2, height / 2);
+
+
     }
 
 
@@ -108,29 +123,63 @@ public class Sketch extends PApplet {
         pushMatrix();
         translate(width / 2, height / 2);
         rotate(rotation);
-
         maze.draw();
         popMatrix();
         fill(0);
         player.draw();
         textSize(40);
         text(player.moveListOutput(), width / 2, 300);
-        text("updateCount: " + updateCount + "\nLAT: " + (currentLat - startLat) + "\nLONG: " + (currentLong - startLong), width / 2, 50);
+        text("updateCount: " + updateCount + "\nLAT: " + (currentLat - startLat) + "\nLONG: " + (currentLong - startLong) + "\nROTATION: " + rotation, width / 2, 50);
         handleIlegalMoves();
     }
 
-<<<<<<< HEAD
+
     private void gameOverScreen() {
-=======
-    private void gameOverScreen(){
         endTime = System.nanoTime();
->>>>>>> 33ba1c87c0c963500c53842843ae1f5ddf8e87a8
+
         textAlign(CENTER);
         fill(0);
         text("WINNER", width / 2, height / 2);
+
+        getActivity().finish();
+//        for (FloatySquare s:fs){
+//            s.draw();
+//        }
+
     }
+
+    private class FloatySquare {
+        float x, y, r, xVel, yVel, rVel;
+        float size;
+
+        public FloatySquare() {
+            size = random(width / 10, width / 5);
+            x = random(width - 4 * size);
+            y = random(height - 4 * size);
+            xVel = random(-20, 20);
+            yVel = random(-20, 20);
+            r = random(PI);
+            rVel = random(-10, 10);
+        }
+
+        public void draw() {
+            pushMatrix();
+            translate(x, y);
+            rotate(r);
+            rect(x - size / 2, y - size / 2, size, size);
+            x += xVel;
+            y += yVel;
+            r += rVel;
+            popMatrix();
+            if (x >= width || x <= 0) xVel *= -1;
+            if (y >= height || y <= 0) yVel *= -1;
+        }
+
+
+    }
+
     //returns total seconds it took for user to complete maze
-    private long returnTotalTime(){
+    private long returnTotalTime() {
         totalTime = endTime - startTime;
         int totalSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(totalTime);
         return totalSeconds;
@@ -145,31 +194,6 @@ public class Sketch extends PApplet {
         maze.markLastLegal(mark);
     }
 
-    public void keyPressed() {
-        if (key == CODED) {
-            switch (keyCode) {
-                case UP:
-                    player.move(Direction.UP);
-                    break;
-                case DOWN:
-                    player.move(Direction.DOWN);
-                    break;
-                case LEFT:
-                    player.move(Direction.LEFT);
-                    break;
-                case RIGHT:
-                    player.move(Direction.RIGHT);
-                    break;
-            }
-        }
-
-        if (key == 'r') {
-            rotation += PI / 16;
-        }
-        if (key == 'e') {
-            rotation -= PI / 16;
-        }
-    }
 
     public class Cell {
         private boolean explored = false, blocked = false;
@@ -571,6 +595,10 @@ public class Sketch extends PApplet {
 
 
             popMatrix();
+            resetMatrix();
+            pushMatrix();
+            translate(width / 2, height / 2);
+            rotate(rotation);
 
             ArrowBoy guide = new ArrowBoy(translation, finish.getCenter(), SCALE / 1.7f, SCALE / 3);
             stroke(255, 150, 70);
@@ -581,6 +609,8 @@ public class Sketch extends PApplet {
                 stroke(255, 0, 0);
                 markGuide.draw();
             }
+
+            popMatrix();
         }
 
         public void markLastLegal(Cell c) {

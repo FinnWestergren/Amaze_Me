@@ -9,6 +9,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorEventListener2;
+import android.hardware.SensorListener;
+import android.hardware.SensorManager;
 import android.location.Location;
 
 import android.net.Uri;
@@ -52,21 +58,26 @@ import processing.android.CompatUtils;
 import processing.core.PApplet;
 
 import java.sql.Time;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Locale;
 
 
 public class GoogleMapsActivity extends FragmentActivity implements OnMapReadyCallback,
 GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener,
-GoogleMap.OnMarkerClickListener, LocationListener {
+GoogleMap.OnMarkerClickListener, LocationListener,SensorEventListener {
 
     private GoogleMap mMap;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private LocationRequest mLocationRequest;
     private boolean mLocationUpdateState;
+    private BroadcastReceiver broadcastReceiver;
 
     private PApplet sketch;
+
+    private float azimuth = 0;
 
     private static final int FINE_LOCATION_REQUEST_CODE = 1;
     private static final int REQUEST_CHECK_SETTINGS = 2;
@@ -88,9 +99,9 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
         // Specifies the rate at which app will like to receive updates
-        mLocationRequest.setInterval(100);
+        mLocationRequest.setInterval(20);
         // Specifies the fastest rate at which the app can handle updates
-        mLocationRequest.setFastestInterval(50);
+        mLocationRequest.setFastestInterval(10);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
 
@@ -181,6 +192,12 @@ GoogleMap.OnMarkerClickListener, LocationListener {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        SensorManager sensorManager=(SensorManager)getSystemService(SENSOR_SERVICE);
+        Sensor accel=sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        Sensor magneto=sensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
+        sensorManager.registerListener(this, accel, SensorManager.SENSOR_DELAY_NORMAL);
+        sensorManager.registerListener(this, magneto, SensorManager.SENSOR_DELAY_NORMAL);
+
         setContentView(R.layout.activity_google_maps);
 
         FrameLayout frame = new FrameLayout(this);
@@ -195,14 +212,15 @@ GoogleMap.OnMarkerClickListener, LocationListener {
         // Listens for a logout broadcast
         IntentFilter filter = new IntentFilter();
         filter.addAction("com.package.ACTION_LOGOUT");
-        registerReceiver(new BroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d("onReceive", "Logout in progress");
 
                 finish();
             }
-        }, filter);
+        };
+        registerReceiver(broadcastReceiver, filter);
 
         checkGooglePlayServices(this);
 
@@ -236,6 +254,7 @@ GoogleMap.OnMarkerClickListener, LocationListener {
         if(mGoogleApiClient != null && mGoogleApiClient.isConnected() ) {
             mGoogleApiClient.disconnect();
         }
+        unregisterReceiver(broadcastReceiver);
     }
 
     // Start the update request if it has a RESULT_OK result for a REQUEST_CHECK_SETTINGS request
@@ -400,6 +419,9 @@ GoogleMap.OnMarkerClickListener, LocationListener {
 
     }
 
+    public ArrayList<Float> latHistory = new ArrayList<Float>();
+    public ArrayList<Float> longHistory = new ArrayList<Float>();
+
     int count = 0;
     @Override
     public void onLocationChanged(Location location) {
@@ -411,14 +433,28 @@ GoogleMap.OnMarkerClickListener, LocationListener {
             LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
 
-            if(!((Sketch)sketch).initialized && count >= 8) ((Sketch)sketch).init(3,mLastLocation.getLatitude(),mLastLocation.getLongitude(),(0.00035),4);
+            float[] values;
 
-            ((Sketch)sketch).updateLocation(location.getLatitude(),location.getLongitude());
+            if(!((Sketch)sketch).initialized && count >= 8)((Sketch)sketch).init(5,getAverage(latHistory),
+                    getAverage(longHistory),getAverage(azimut),
+                    (0.00014),4);
+
+            latHistory.add((float)mLastLocation.getLatitude());
+            longHistory.add((float)mLastLocation.getLongitude());
+
+            ((Sketch)sketch).updateLocation(getAverage(latHistory),getAverage(longHistory));
+            if(latHistory.size()>4) latHistory.remove(0);
+            if(longHistory.size()>4) longHistory.remove(0);
+
+
+
             count++;
             Toast.makeText(this,"location: " + location.toString(),Toast.LENGTH_LONG);
         }
 
     }
+
+
     @Override
     public void onNewIntent(Intent intent) {
         if (sketch != null) {
@@ -426,9 +462,47 @@ GoogleMap.OnMarkerClickListener, LocationListener {
         }
     }
 
+    ArrayList<Float> azimut = new ArrayList<Float>();
+    float[] mGravity;
+    float[] mGeomagnetic;
+    public void onSensorChanged(SensorEvent event) {
+        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER)
+            mGravity = event.values;
+        if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD)
+            mGeomagnetic = event.values;
+        if (mGravity != null && mGeomagnetic != null) {
+            float R[] = new float[9];
+            float I[] = new float[9];
+            boolean success = SensorManager.getRotationMatrix(R, I, mGravity, mGeomagnetic);
+            if (success) {
+                float orientation[] = new float[3];
+                SensorManager.getOrientation(R, orientation);
+                azimut.add(orientation[0]); // orientation contains: azimut, pitch and roll
+                if(azimut.size()>20) azimut.remove(0);
+                ((Sketch)sketch).updateRotation(getAverage(azimut));
+            }
+        }
+    }
+
+    private float getAverage(ArrayList<Float> list) {
+        float sum = 0;
+        for(float f: list) {
+            sum+=f;
+        }
+        return (sum/list.size());
+    }
+
+
+
+
     @Override
-    public boolean onMarkerClick(Marker marker) {
-        return false;
+    public boolean onMarkerClick(Marker marker){
+        return true;
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor s, int i){
+
     }
 
 }

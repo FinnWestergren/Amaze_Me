@@ -31,11 +31,8 @@ public class SettingsActivity extends AppCompatActivity {
     FirebaseDatabase database = FirebaseDatabase.getInstance();
     DatabaseReference userRef = database.getReference("users");
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
-
+    public void onResume() {
+        super.onResume();
 
         // Listens for a logout broadcast
         IntentFilter filter = new IntentFilter();
@@ -52,6 +49,19 @@ public class SettingsActivity extends AppCompatActivity {
         };
 
         registerReceiver(br, filter);
+    }
+
+    public void onPause() {
+        super.onPause();
+
+        unregisterReceiver(br);
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_settings);
+
 
         // Adds toolbar to activity
         Toolbar mToolbar = (Toolbar) findViewById(R.id.toolbar);

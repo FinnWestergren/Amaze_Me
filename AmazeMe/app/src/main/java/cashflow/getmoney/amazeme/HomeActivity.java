@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
+import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 
 import android.support.v7.app.AppCompatActivity;
@@ -18,7 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-public class HomeActivity extends AppCompatActivity {
+public class HomeActivity extends AppCompatActivity  {
 
     Button viewProfile;
     Button newGame;
@@ -28,6 +29,29 @@ public class HomeActivity extends AppCompatActivity {
 
     ImageView logo;
 
+//    public void onResume() {
+//        super.onResume();
+//
+//        // Listens for a logout broadcast
+//        IntentFilter filter = new IntentFilter();
+//        filter.addAction("com.package.ACTION_LOGOUT");
+//
+//        br = new BroadcastReceiver() {
+//            @Override
+//            public void onReceive(Context context, Intent intent) {
+//                Log.d("onReceive", "Logout in progress");
+//                finish();
+//            }
+//        };
+//        registerReceiver(br, filter);
+//    }
+//
+//    public void onPause() {
+//        super.onPause();
+//
+//        unregisterReceiver(br);
+//    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -35,9 +59,6 @@ public class HomeActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         user = intent.getStringExtra("USERNAME");
-
-        logo = (ImageView) findViewById(R.id.logo);
-        logo.setImageResource(R.drawable.logo);
 
         // Listens for a logout broadcast
         IntentFilter filter = new IntentFilter();
@@ -51,6 +72,9 @@ public class HomeActivity extends AppCompatActivity {
             }
         };
         registerReceiver(br, filter);
+
+        logo = (ImageView) findViewById(R.id.logo);
+        logo.setImageResource(R.drawable.logo);
 
         newGame = (Button) findViewById(R.id.newGame);
         viewProfile = (Button) findViewById(R.id.viewProfile);
@@ -90,6 +114,4 @@ public class HomeActivity extends AppCompatActivity {
             }
         });
     }
-
-
 }
