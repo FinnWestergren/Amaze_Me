@@ -6,25 +6,21 @@ package cashflow.getmoney.amazeme;
 
 public class Maze {
     private int index;
-
-    public int getIndex() {
-        return index;
-    }
-
-    public void setIndex(int index) {
-        this.index = index;
-    }
-
-    public String getCompletionDate() {
-        return completionDate;
-    }
-
-    public void setCompletionDate(String completionDate) {
-        this.completionDate = completionDate;
-    }
-
     private String completionDate;
-    public Maze(){
-        
+    private int height;
+    private int width;
+    private int score;
+    private String mazeString;
+
+    public Maze(int index, String completionDate, int height, int width, int score, String mazeString) {
+        this.index = index;
+        this.completionDate = completionDate;
+        this.height = height;
+        this.width = width;
+        this.score = score;
+        this.mazeString = mazeString;
     }
+
+
+
 }
