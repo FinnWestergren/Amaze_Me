@@ -36,6 +36,14 @@
 
         <Button
             android:layout_marginTop="20dp"
+            android:id="@+id/mazesCompleted"
+            android:layout_width="245dp"
+            android:layout_height="45dp"
+            android:text="Mazes Completed"
+            android:background="#FFA000"/>
+
+        <Button
+            android:layout_marginTop="20dp"
             android:id="@+id/newGame"
             android:layout_width="245dp"
             android:layout_height="45dp"
