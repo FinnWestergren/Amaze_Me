@@ -433,6 +433,7 @@ GoogleMap.OnMarkerClickListener, LocationListener,SensorEventListener {
             LatLng currentLocation = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 20));
 
+<<<<<<< HEAD
             float[] values;
 
             if(!((Sketch)sketch).initialized && count >= 8)((Sketch)sketch).init(5,getAverage(latHistory),
@@ -448,7 +449,17 @@ GoogleMap.OnMarkerClickListener, LocationListener,SensorEventListener {
 
 
 
+=======
+            if(!((Sketch)sketch).initialized && count >= 8) ((Sketch)sketch).init(3,mLastLocation.getLatitude(),mLastLocation.getLongitude(),(0.00035),4);
+            if(mLastLocation.getAccuracy() < 20) {
+                ((Sketch) sketch).updateLocation(location.getLatitude(), location.getLongitude());
+                Toast.makeText(this, "LOCATION SPEED" + mLastLocation.getSpeed(), Toast.LENGTH_SHORT).show();
+                Log.d("LOCATION SPEED", "" + mLastLocation.getSpeed());
+            }
+>>>>>>> 5666673d269294b2c16a021b56dfb65c8df25530
             count++;
+
+
             Toast.makeText(this,"location: " + location.toString(),Toast.LENGTH_LONG);
         }
 

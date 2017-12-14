@@ -1,6 +1,17 @@
 package cashflow.getmoney.amazeme;
 
 
+<<<<<<< HEAD
+=======
+import android.widget.Toast;
+
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+
+>>>>>>> 5666673d269294b2c16a021b56dfb65c8df25530
 import java.util.ArrayList;
 import java.util.Stack;
 import java.util.concurrent.TimeUnit;
@@ -13,18 +24,30 @@ public class Sketch extends PApplet {
     public static Player player;
     public static Maze maze;
     public int xDim, yDim;
+<<<<<<< HEAD
 
     public static float initialRotation = -3 * PI / 4, initialBearing, rotation;
+=======
+    public static float rotation = 0;
+
+>>>>>>> 5666673d269294b2c16a021b56dfb65c8df25530
     public int updateCount = 0;
     public boolean initialized = false;
     double currentLat, currentLong, previousLat, previousLong;
     public static double startLat, startLong, degreesPerCell;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 5666673d269294b2c16a021b56dfb65c8df25530
     //score calculator
     public static long startTime;
     public static long endTime;
     public static long totalTime;
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5666673d269294b2c16a021b56dfb65c8df25530
     //cellsPerView Determines SCALE
     public Sketch() {
         super();
@@ -136,7 +159,10 @@ public class Sketch extends PApplet {
 
     private void gameOverScreen() {
         endTime = System.nanoTime();
+<<<<<<< HEAD
 
+=======
+>>>>>>> 5666673d269294b2c16a021b56dfb65c8df25530
         textAlign(CENTER);
         fill(0);
         text("WINNER", width / 2, height / 2);
@@ -179,7 +205,11 @@ public class Sketch extends PApplet {
     }
 
     //returns total seconds it took for user to complete maze
+<<<<<<< HEAD
     private long returnTotalTime() {
+=======
+    private int returnTotalTime(){
+>>>>>>> 5666673d269294b2c16a021b56dfb65c8df25530
         totalTime = endTime - startTime;
         int totalSeconds = (int) TimeUnit.NANOSECONDS.toSeconds(totalTime);
         return totalSeconds;
@@ -450,6 +480,171 @@ public class Sketch extends PApplet {
                 }
         }
 
+        public void stringToMaze(String userId) {
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference mazeRef = database.getReference("maps/" + userId);
+
+            mazeRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    int widthDim = (int) dataSnapshot.child("width").getValue();
+                    int heightDim = (int) dataSnapshot.child("height").getValue();
+
+                    // Instantiate maze grid with correct dimensions
+                    grid = new Cell[widthDim][heightDim];
+
+                    String mazeStr = (String) dataSnapshot.child("mazeString").getValue();
+                    char[] mazeChars = mazeStr.toCharArray();
+                    int charIndex = 0;
+
+                    for(int j = 0; j < heightDim; j++) {
+                        for(int i = 0; i < widthDim; i++) {
+                            Wall h = new Wall(i, j, Orientation.HORIZ);
+                            Wall v = new Wall(i, j, Orientation.VERT);
+
+                            switch(mazeChars[charIndex]) {
+                                case '0':
+                                    charIndex++;
+                                case '1':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                case '2':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                                case '3':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                case '4':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.UP, h);
+                                case '5':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                                case '6':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                                case '7':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                    grid[i][j].setWall(Direction.UP, h);
+                                case '8':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                    grid[i][j].setWall(Direction.UP, h);
+                                case '9':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                                case 'A':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                    grid[i][j].setWall(Direction.UP, h);
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                                case 'B':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                    grid[i][j].setWall(Direction.UP, h);
+                                case 'C':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                    grid[i][j].setWall(Direction.UP, h);
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                                case 'D':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                case 'E':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.UP, h);
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                                case 'F':
+                                    charIndex++;
+                                    grid[i][j].setWall(Direction.LEFT, v);
+                                    grid[i][j].setWall(Direction.RIGHT, v);
+                                    grid[i][j].setWall(Direction.UP, h);
+                                    grid[i][j].setWall(Direction.DOWN, h);
+                            }
+                        }
+                    }
+
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+        }
+
+        public void mazeToString(String userId) {
+            Cell[][] mazeCells = maze.grid;
+            int widthDim = maze.widthDim, heightDim = maze.heightDim;
+            String mazeStr = "";
+
+            FirebaseDatabase database = FirebaseDatabase.getInstance();
+            DatabaseReference mazeRef = database.getReference("maps/" + userId);
+
+            for(int j = 0; j < heightDim; j++) {
+                for(int i = 0; i < widthDim; i++) {
+                    boolean isUp = false, isDown = false, isLeft = false, isRight = false;
+
+                    Wall up =  mazeCells[i][j].getWall(Direction.UP);
+                    if(up != null) { isUp = true; }
+                    Wall down = mazeCells[i][j].getWall(Direction.DOWN);
+                    if(down != null) { isDown = true; }
+                    Wall left = mazeCells[i][j].getWall(Direction.LEFT);
+                    if(left != null) { isLeft = true; }
+                    Wall right = mazeCells[i][j].getWall(Direction.RIGHT);
+                    if(right != null) { isRight = true; }
+
+                    if(!isUp && !isDown && !isLeft && !isRight) {
+                        mazeStr += "0";
+                    } else if (!isUp && !isDown && isLeft && !isRight) {
+                        mazeStr += "1";
+                    } else if (!isUp && isDown && !isLeft && !isRight) {
+                        mazeStr += "2";
+                    } else if (!isUp && !isDown && !isLeft && isRight) {
+                        mazeStr += "3";
+                    } else if (isUp && !isDown && !isLeft && !isRight) {
+                        mazeStr += "4";
+                    } else if (!isUp && isDown && isLeft && !isRight) {
+                        mazeStr += "5";
+                    } else if (!isUp && isDown && !isLeft && isRight) {
+                        mazeStr += "6";
+                    } else if (isUp && !isDown && !isLeft && isRight) {
+                        mazeStr += "7";
+                    } else if (isUp && !isDown && isLeft && !isRight) {
+                        mazeStr += "8";
+                    } else if (!isUp && isDown && isLeft && isRight) {
+                        mazeStr += "9";
+                    } else if (isUp && isDown && !isLeft && isRight) {
+                        mazeStr += "A";
+                    } else if (isUp && !isDown && isLeft && isRight) {
+                        mazeStr += "B";
+                    } else if (isUp && isDown && isLeft && !isRight) {
+                        mazeStr += "C";
+                    } else if (!isUp && !isDown && isLeft && isRight) {
+                        mazeStr += "D";
+                    } else if (isUp && isDown && !isLeft && !isRight) {
+                        mazeStr += "E";
+                    } else if (isUp && isDown && isLeft && isRight) {
+                        mazeStr += "F";
+                    }
+                }
+            }
+
+            mazeRef.child("mazeString").setValue(mazeStr);
+            mazeRef.child("width").setValue(widthDim);
+            mazeRef.child("height").setValue(heightDim);
+
+        }
 
         public Cell getStart() {
 
